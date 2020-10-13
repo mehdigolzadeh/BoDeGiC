@@ -220,9 +220,15 @@ def progress(repositories, authors, authors_email, exclude, exclude_emails, date
     )
     if exclude != []:
         df = df[~df["author"].isin(exclude)]
+    
+    if exclude_emails != []:
+        df = df[~df["author_email"].isin(exclude_emails)]
 
     if authors != []:
         df = df[lambda x: x['author'].isin(authors)]
+    
+    if authors_email != []:
+        df = df[lambda x: x['author_email'].isin(authors_email)]
 
     if(len(df) < 1):
         raise BodegitError('There are not enough comments in the selected time period to\
@@ -293,10 +299,28 @@ predict the type of authors. At least 10 comments is required for each author.')
             'dispersion':np.nan,
             'prediction':"Not Found",
         },ignore_index=True,sort=True)
+    
+     != []:
+        df = df[~df["author"].isin(exclude)]
+    
+    if exclude_emails != []:
+        df = df[~df["author_email"].isin(exclude_emails)]
+
+    if authors != []:
+        df = df[lambda x: x['author'].isin(authors)]
+    
+    if authors_email
+    
     if verbose is False:
-        result = result.set_index('author')[['email','prediction']]
+        if (exclude != []) | (authors != []):
+            result = result.set_index('author')[['prediction']]
+        else:
+            result = result.set_index('email')[['prediction']]
     else:
-        result = result.set_index('author')[['email','comments', 'empty comments', 'patterns', 'dispersion','prediction']]
+        if (exclude != []) | (authors != []):
+            result = result.set_index('author')[['email','comments', 'empty comments', 'patterns', 'dispersion','prediction']]
+        else:
+            result = result.set_index('email')[['comments', 'empty comments', 'patterns', 'dispersion','prediction']]
 
     if output_type == 'json':
         return (result.reset_index().to_json(orient='records'))
