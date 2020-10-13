@@ -41,84 +41,70 @@ deactivate
 
 ## Usage 
 
-You can execute the tool with all default parameters by running `bodegit path_to_git_repository`
-
 Here is the list of parameters:
 
-`--accounts [ACCOUNT [ACCOUNT ...]]` 	**User login of one or more accounts**
-> Example: $ bodegit repo_owner/repo_name --accounts mehdigolzadeh alexandredecan tommens --key <token>
-  
-_By default all accounts in the repository will be analysed_
+`--repositories [REPOSITORY [REPOSITORY ...]]` 	**A list of repositories' path**
+> Example: $ bodegit --repositories ./path/to/repo1 ./path/to/repo2
 
-`--start-date START_DATE` 		**Start date of pull request and issue comments in the repository to be considered**
-> Example: $ bodegit repo_owner/repo_name --start-date 01-01-2018 --key <token>
+_At least one repository is required_
+
+`--authors [AUTHOR [AUTHOR ...]]` 	**A list of complete name of authors**
+> Example: $ bodegit --repositories ./path/to/repo1 --authors mehdigolzadeh "alexand redecan" "tom mens"
+  
+`--authors-email [AUTHOR-EMAIL [AUTHOR-EMAIL ...]]` 	**A list of email of authors**
+> Example: $ bodegit --repositories ./path/to/repo1 --authors-email mg@umons.ac.be ad@umons.ac.be
+
+_By default all authors in the repository will be analysed_
+
+`--exclude [AUTHOR [AUTHOR ...]]` 	**A list of complete name of authors to be excluded from analysis**
+> Example: $ bodegit --repositories ./path/to/repo1 --exclude mehdigolzadeh
+  
+`--exclude-emails [AUTHOR-EMAIL [AUTHOR-EMAIL ...]]` 	**A list of email of authors to be excluded from analysis**
+> Example: $ bodegit --repositories ./path/to/repo1 --exclude-emails mg@umons.ac.be
+
+`--start-date START_DATE` 		**Start date of commit in the repository to be considered**
+> Example: $ bodegit --repositories ./path/to/repo1 --start-date 01-01-2018
   
 _The default start-date is 6 months before the current date. 
 
 `--verbose` **To have verbose output result**
-> Example: $ bodegit repo_owner/repo_name --verbose --key <token>
+> Example: $ bodegit --repositories ./path/to/repo1 --verbose
  
 _The default value is false, if you don't pass this parameter the output will only be the accounts and their type_
   
-`--min-comments MIN_COMMENTS` 		**Minimum number of pull request and issue comments that are required to analyze an account**
-> Example: $ bodegit repo_owner/repo_name --min-comment 20 --key <token>
+`--min-commits MIN_COMMITS` 		**Minimum number of commit messages that are required to analyze an account**
+> Example: $ bodegit --repositories ./path/to/repo1 --min-commits 20
  
 _The default value is 10 comments_
 
-`--max-comments MAX_COMMENTS` 		**Maximum number of pull request and issue comments to be considered for each account (default=100)**
-> Example: $ bodegit repo_owner/repo_name --max-comment 120 --key <token>
+`--max-commits MAX_COMMITS` 		**Maximum number of commit messages to be considered for each account (default=100)**
+> Example: $ bodegit --repositories ./path/to/repo1 --max-commits 120
 
 _The default value is 100 comments_
-
-`--key APIKEY` 				**GitHub personal access token required to download comments from GitHub GraphQL API**
-_This parameter is mandatory and you can obtain an access token as described earlier_
 
 `--text`                	Output results as plain text
 `--csv`                		Output results in comma-separated values (csv) format
 `--json`                	Output results in json format
-> Example: $ bodegit repo_owner/repo_name --json --key <token> 
+> Example: $ bodegit --repositories ./path/to/repo1 --json
 
 _This group of parameters is the type of output, e.g., if you pass --json you will get the result in JSON format_
 
-## As of version 0.2.3
-`--exclude [ACCOUNT [ACCOUNT ...]]` **List of accounts to be excluded from the analysis**
 
-> Example: $ bodegit repo_owner/repo_name --exclude mehdigolzadeh alexandredecan tommens --key <token>
 
 ## Examples of bodegit output (for illustration purposes only)
 ```
-$ bodegit request/request --key <my token> --start-date 01-01-2017  --verbose
-                   comments  empty comments  patterns  dispersion prediction                          
-account                                                                     
-greenkeeperio-bot        12               0         1    0.108246        Bot
-stale                   100               0         1    0.000000        Bot
-FredKSchott              64               0        53    0.040618      Human
-ahmadnassri              11               0        11    0.037776      Human
-csvan                    12               0        12    0.031019      Human
-dvishniakov              11               0         9    0.068446      Human
-hktalent                 11               0        10    0.034367      Human
-johnnysprinkles          12               0        11    0.033187      Human
-mikeal                  100               0       100    0.035073      Human
-nicjansma                12               0        12    0.035834      Human
-plroebuck                10               0        10    0.035052      Human
-reconbot                 93               0        81    0.036863      Human
-simov                    41               0        37    0.031932      Human
+$ bodegit --repositories ./path/to/repo1 --start-date 01-01-2017  --verbose
+
 ```
 
 ```
-$ bodegit fthomas/refined --key <my token> --start-date 01-01-2017  --verbose --min-comments 20 --max-comments 90 --json
+$ bodegit --repositories ./path/to/repo1 --start-date 01-01-2017  --verbose --min-commits 20 --max-commits 90 --json
 
-[{"comments":90,"empty comments":0,"patterns":2,"dispersion":0.2573516536,"prediction":"Bot"},{"comments":51,"empty comments":0,"patterns":2,"dispersion":0.2291022525,"prediction":"Bot"},{"comments":90,"empty comments":0,"patterns":1,"dispersion":0.1800412851,"prediction":"Bot"},{"comments":36,"empty comments":0,"patterns":36,"dispersion":0.0282932021,"prediction":"Human"},{"comments":20,"empty comments":1,"patterns":20,"dispersion":0.0314103784,"prediction":"Human"},{"comments":90,"empty comments":14,"patterns":63,"dispersion":0.0441294969,"prediction":"Human"},{"comments":43,"empty comments":1,"patterns":43,"dispersion":0.0321397659,"prediction":"Human"}]
-```
 
 ```
-$ bodegit servo/servo --key <my token> --verbose --max-comments 80 --csv --accounts bors-servo Darkspirit Eijebong PeterZhizhin SimonSapin highfive
 
-account,comments,empty comments,patterns,dispersion,prediction                                        
-bors-servo,80,0,11,0.12661359778212722,Bot
-highfive,80,0,6,0.16390462912896814,Bot
-Darkspirit,32,0,32,0.025969293313879968,Human
-Eijebong,27,2,23,0.02551053114396642,Human
-PeterZhizhin,13,0,12,0.025372037602093358,Human
-SimonSapin,80,3,57,0.04771309733409579,Human
+```
+$ bodegit --repositories ./path/to/repo1 --verbose --max-commits 80 --csv --authors "author1 ln" 
+
+
 ```

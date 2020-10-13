@@ -309,7 +309,7 @@ predict the type of authors. At least 10 comments is required for each author.')
 # --- cli ---
 def arg_parser():
     parser = argparse.ArgumentParser(description='BoDeGit - Bot detection in Git commit messages')
-    parser.add_argument('--repositories', metavar='repository',
+    parser.add_argument('--repositories', metavar='REPOSITORY',
         help='list of a repositories on GitHub in the form of ("owner/repo")',
         default=list(), type=str, nargs='*')
     parser.add_argument(
