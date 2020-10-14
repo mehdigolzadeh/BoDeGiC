@@ -33,10 +33,6 @@ import pkg_resources
 import numpy as np
 from dateutil.relativedelta import relativedelta
 import datetime
-try:
-    from urllib.request import urlopen, Request
-except ImportError:
-    from urllib2 import urlopen, Request
 import argparse
 from tqdm import tqdm
 
@@ -47,7 +43,7 @@ class BodegitError(ValueError):
 
 
 # --- Extract commit messages ---
-def process_comments(repositories, authors, date, min_commits, max_commits):
+def process_comments(repositories, mapping ,committer, date, min_commits, max_commits):
     comments = pandas.DataFrame()
 
     for repository in repositories:
@@ -59,9 +55,17 @@ def process_comments(repositories, authors, date, min_commits, max_commits):
 
         commits = repo.iter_commits('--all')
         for commit in commits:
+            if ~committer:
+                author = commit.author.name
+            else:
+                author = commit.committer.name
+            
+            identity = mapping.get(author, author)
+            if author.lower() != 'ignore' and identity.lower() == 'ignore':
+                continue
+
             comments = comments.append({
-                        'author': commit.author.name,
-                        'email': commit.author.email,
+                        'author': identity,
                         'body': commit.message[:-1] if commit.message.endswith('\n') else commit.message,
                         'repository': repository,
                         'created_at': datetime.date.fromtimestamp(commit.authored_date),
@@ -160,7 +164,7 @@ def predict(model, df):
 
 # --- Thread and progress ---
 def task(data):
-    author,email , group, max_commits, params = data
+    author , group, max_commits, params = data
     group = group[:max_commits]
     clustering = DBSCAN(eps=params['eps'], min_samples=1, metric='precomputed')
     items = compute_distance(getattr(group, params['source']), params['func'])
@@ -169,7 +173,6 @@ def task(data):
 
     return (
         author,
-        email,
         len(group),
         empty_comments,
         len(np.unique(clusters)),
@@ -193,20 +196,20 @@ def run_function_in_thread(pbar, function, max_value, args=[], kwargs={}):
     return ret[0]
 
 
-def progress(repositories, authors, authors_email, exclude, exclude_emails, date, verbose, min_commits, max_commits, output_type):
+def progress(repositories, include, mapping, committer, date, verbose, min_commits, max_commits, output_type):
     download_progress = tqdm(
         total=25, desc='Extracting commits', smoothing=.1,
         bar_format='{desc}: {percentage:3.0f}%|{bar}', leave=False)
     comments = run_function_in_thread(
         download_progress, process_comments, 25,
-        args=[repositories, authors, date, min_commits, max_commits])
+        args=[repositories, mapping, committer, date, min_commits, max_commits])
     download_progress.close()
 
     if comments is None:
-        raise BodegitError('Download failed please check your apikey or required libraries.')
+        raise BodegitError('Commit information extraction failed.')
 
     if len(comments) < 1:
-        raise BodegitError('Available comments are not enough to predict the type of authors')
+        raise BodegitError('Available commits are not enough to predict the type of identities')
 
     df = (
         comments
@@ -218,28 +221,19 @@ def progress(repositories, authors, authors_email, exclude, exclude_emails, date
         .sort_values('created_at', ascending=False)
         .groupby('author').head(100)
     )
-    if exclude != []:
-        df = df[~df["author"].isin(exclude)]
-    
-    if exclude_emails != []:
-        df = df[~df["author_email"].isin(exclude_emails)]
 
-    if authors != []:
-        df = df[lambda x: x['author'].isin(authors)]
-    
-    if authors_email != []:
-        df = df[lambda x: x['author_email'].isin(authors_email)]
+    if len(include) != 0:
+        df = df[lambda x: x['author'].isin(include)]
 
     if(len(df) < 1):
-        raise BodegitError('There are not enough comments in the selected time period to\
-predict the type of authors. At least 10 comments is required for each author.')
+        raise BodegitError('There are not enough commits in the selected time period to\
+predict the type of identities. At least 10 commits is required for each identity.')
 
     inputs = []
-    for author, group in df.groupby(['author','email']):
+    for author, group in df.groupby(['author']):
         inputs.append(
             (
-                author[0],
-                author[1],
+                author,
                 group.copy(),
                 max_commits,
                 {'func': average_jac_lev, 'source': 'body', 'eps': 0.5}
@@ -258,8 +252,10 @@ predict the type of authors. At least 10 comments is required for each author.')
             data.append(result)
 
     
+    identity_type = ('committer' if committer else 'author')
+
     df_clusters = pandas.DataFrame(
-        data=data, columns=['author','email', 'comments', 'empty comments', 'patterns', 'dispersion'])
+        data=data, columns=[identity_type, 'comments', 'empty comments', 'patterns', 'dispersion'])
 
     prediction_progress = tqdm(
         total=25, smoothing=.1, bar_format='{desc}: {percentage:3.0f}%|{bar}', leave=False)
@@ -273,12 +269,12 @@ predict the type of authors. At least 10 comments is required for each author.')
     result = run_function_in_thread(
         prediction_progress, predict, 25, args=(model, df_clusters))
     
-    result = result.sort_values(['prediction', 'author'])
+    result = result.sort_values(['prediction', identity_type])
     prediction_progress.close()
 
     result = result.append(  
         (
-            comments[lambda x: ~x['author'].isin(result.author)][['author','body']]
+            comments[lambda x: ~x['author'].isin(result[identity_type])][['author','body']]
             .groupby('author', as_index=False)
             .count()
             .assign(
@@ -287,12 +283,12 @@ predict the type of authors. At least 10 comments is required for each author.')
                 dispersion=np.nan,
                 prediction="Few data",
             )
-            .rename(columns={'body':'messages','empty':'empty messages'})
+            .rename(columns={'author':identity_type,'body':'messages','empty':'empty messages'})
         ),ignore_index=True,sort=True)
     
-    for author in (set(authors) - set(result.author)):
+    for identity in (set(include) - set(result[identity_type])):
         result = result.append({
-            'author': author,
+            identity_type: identity,
             'comments':np.nan,
             'empty comments':np.nan,
             'patterns':np.nan,
@@ -300,27 +296,10 @@ predict the type of authors. At least 10 comments is required for each author.')
             'prediction':"Not Found",
         },ignore_index=True,sort=True)
     
-     != []:
-        df = df[~df["author"].isin(exclude)]
-    
-    if exclude_emails != []:
-        df = df[~df["author_email"].isin(exclude_emails)]
-
-    if authors != []:
-        df = df[lambda x: x['author'].isin(authors)]
-    
-    if authors_email
-    
     if verbose is False:
-        if (exclude != []) | (authors != []):
-            result = result.set_index('author')[['prediction']]
-        else:
-            result = result.set_index('email')[['prediction']]
+        result = result.set_index(identity_type)[['prediction']]
     else:
-        if (exclude != []) | (authors != []):
-            result = result.set_index('author')[['email','comments', 'empty comments', 'patterns', 'dispersion','prediction']]
-        else:
-            result = result.set_index('email')[['comments', 'empty comments', 'patterns', 'dispersion','prediction']]
+        result = result.set_index(identity_type)[['comments', 'empty comments', 'patterns', 'dispersion','prediction']]
 
     if output_type == 'json':
         return (result.reset_index().to_json(orient='records'))
@@ -335,23 +314,21 @@ def arg_parser():
     parser = argparse.ArgumentParser(description='BoDeGit - Bot detection in Git commit messages')
     parser.add_argument('--repositories', metavar='REPOSITORY',
         help='list of a repositories on GitHub in the form of ("owner/repo")',
-        default=list(), type=str, nargs='*')
+        default=list(), type=str, nargs='+')
     parser.add_argument(
-        '--authors', metavar='AUTHOR', required=False, default=list(), type=str, nargs='*',
+        '--include', metavar='NAME', required=False, default=list(), type=str, nargs='*',
         help='List of authors. Example: \
---authors "mehdi golzadeh" "alexandre decan" "tom mens"')
+--include "jack foo" "donald bar" "jane foo"')
     parser.add_argument(
-        '--authors-email', metavar='AUTHOR-EMAIL', required=False, default=list(), type=str, nargs='*',
-        help='List of authors\' email. Example: \
---authors-email mehdigolzadeh@umons.ac.be alexandredecan@umons.ac.be tommens@umons.ac.be')
+        '--committer', action="store_true", required=False, default=False,
+        help='Analyse commiters instead of authors')
+
     parser.add_argument(
-        '--exclude', metavar='AUTHOR', required=False, default=list(), type=str, nargs='*',
-        help='List of authors to be excluded in the analysis. Example: \
---exclude "mehdi golzadeh" "alexandre decan" "tom mens"')
-    parser.add_argument(
-        '--exclude-emails', metavar='AUTHOR-EMAIL', required=False, default=list(), type=str, nargs='*',
-        help='List of authors email to be excluded in the analysis. Example: \
---exclude-emails mehdigolzadeh@umons.ac.be alexandredecan@umons.ac.be tommens@umons.ac.be')
+        '--mapping', type=str, nargs='?', 
+        help='Mapping file to merge identities. This file must be a csv file where \
+each line contains two values: the name to be merged, and the corresponding identity. \
+Use "IGNORE" as identity to ignore specific names.')
+
     parser.add_argument(
         '--start-date', type=str, required=False,
         default=None, help='Commits later than this date will be considered')
@@ -390,6 +367,15 @@ def cli():
     else:
         max_commits = args.max_commits
 
+    # Identity mapping
+    if args.mapping:
+        d = pandas.read_csv(args.mapping, names=['source', 'target'])
+        mapping = {r.source: r.target for r in d.itertuples()}
+    else:
+        mapping = {}
+
+    print(d)
+
     if args.csv:
         output_type = 'csv'
     elif args.json:
@@ -402,10 +388,9 @@ def cli():
             print(
                 progress(
                     args.repositories,
-                    args.authors,
-                    args.authors_email,
-                    args.exclude,
-                    args.exclude_emails,
+                    args.include,
+                    mapping,
+                    args.committer,
                     date,
                     args.verbose,
                     min_commits,
