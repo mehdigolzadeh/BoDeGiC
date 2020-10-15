@@ -156,7 +156,7 @@ def predict(model, df):
         df
         .assign(
             prediction=lambda x: np.where(model.predict(
-                x[['comments', 'empty comments', 'patterns', 'dispersion']]) == 1, 'Bot', 'Human')
+                x[['messages', 'empty messages', 'patterns', 'dispersion']]) == 1, 'Bot', 'Human')
         )
     )
     return df
@@ -255,7 +255,7 @@ predict the type of identities. At least 10 commits is required for each identit
     identity_type = ('committer' if committer else 'author')
 
     df_clusters = pandas.DataFrame(
-        data=data, columns=[identity_type, 'comments', 'empty comments', 'patterns', 'dispersion'])
+        data=data, columns=[identity_type, 'messages', 'empty messages', 'patterns', 'dispersion'])
 
     prediction_progress = tqdm(
         total=25, smoothing=.1, bar_format='{desc}: {percentage:3.0f}%|{bar}', leave=False)
@@ -281,7 +281,7 @@ predict the type of identities. At least 10 commits is required for each identit
                 empty=np.nan,
                 patterns=np.nan,
                 dispersion=np.nan,
-                prediction="Few data",
+                prediction="Low data",
             )
             .rename(columns={'author':identity_type,'body':'messages','empty':'empty messages'})
         ),ignore_index=True,sort=True)
@@ -289,17 +289,17 @@ predict the type of identities. At least 10 commits is required for each identit
     for identity in (set(include) - set(result[identity_type])):
         result = result.append({
             identity_type: identity,
-            'comments':np.nan,
-            'empty comments':np.nan,
+            'messages':np.nan,
+            'empty messages':np.nan,
             'patterns':np.nan,
             'dispersion':np.nan,
-            'prediction':"Not Found",
+            'prediction':"Not found",
         },ignore_index=True,sort=True)
     
     if verbose is False:
         result = result.set_index(identity_type)[['prediction']]
     else:
-        result = result.set_index(identity_type)[['comments', 'empty comments', 'patterns', 'dispersion','prediction']]
+        result = result.set_index(identity_type)[['messages', 'empty messages', 'patterns', 'dispersion','prediction']]
 
     if output_type == 'json':
         return (result.reset_index().to_json(orient='records'))
@@ -373,8 +373,6 @@ def cli():
         mapping = {r.source: r.target for r in d.itertuples()}
     else:
         mapping = {}
-
-    print(d)
 
     if args.csv:
         output_type = 'csv'
