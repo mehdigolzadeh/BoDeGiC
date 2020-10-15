@@ -48,24 +48,23 @@ Here is the list of parameters:
 
 _At least one repository is required_
 
-`--authors [AUTHOR [AUTHOR ...]]` 	**A list of complete name of authors**
-> Example: $ bodegit --repositories ./path/to/repo1 --authors mehdigolzadeh "alexand redecan" "tom mens"
-  
-`--authors-email [AUTHOR-EMAIL [AUTHOR-EMAIL ...]]` 	**A list of email of authors**
-> Example: $ bodegit --repositories ./path/to/repo1 --authors-email mg@umons.ac.be ad@umons.ac.be
+`--include [NAME [Name ...]]` 	**A list of name of authors**
+> Example: $ bodegit --repositories ./path/to/repo1 --authors "jim golzadeh" "donald s" "m mens"
 
 _By default all authors in the repository will be analysed_
 
-`--exclude [AUTHOR [AUTHOR ...]]` 	**A list of complete name of authors to be excluded from analysis**
-> Example: $ bodegit --repositories ./path/to/repo1 --exclude mehdigolzadeh
+`--committer` 	**To analyse committers instead of authors**
+> Example: $ bodegit --repositories ./path/to/repo1 --committer
   
-`--exclude-emails [AUTHOR-EMAIL [AUTHOR-EMAIL ...]]` 	**A list of email of authors to be excluded from analysis**
-> Example: $ bodegit --repositories ./path/to/repo1 --exclude-emails mg@umons.ac.be
+`--mapping [--mapping [MAPPING]]` 	**Mapping file to merge identities. This file must be a csv file where each line contains two values: the name to be merged, and the corresponding identity.**
+> Example: $ bodegit --repositories ./path/to/repo1 --mapping ./mapping.csv
+
+_Use "IGNORE" as identity to ignore specific names._
 
 `--start-date START_DATE` 		**Start date of commit in the repository to be considered**
 > Example: $ bodegit --repositories ./path/to/repo1 --start-date 01-01-2018
   
-_The default start-date is 6 months before the current date. 
+_The default start-date is 6 months before the current date._
 
 `--verbose` **To have verbose output result**
 > Example: $ bodegit --repositories ./path/to/repo1 --verbose
@@ -93,18 +92,27 @@ _This group of parameters is the type of output, e.g., if you pass --json you wi
 
 ## Examples of bodegit output (for illustration purposes only)
 ```
-$ bodegit --repositories ./path/to/repo1 --start-date 01-01-2017  --verbose
-
+$ bodegit --repositories ./path/to/repo1  --verbose --committer
+                  messages  empty messages  patterns  dispersion prediction
+committer
+Travis CI[bot]          20             0.0       1.0       0.026        Bot
+greenkeeper[bot]        10             0.0       3.0       0.141        Bot
+blablabla               69             0.0      58.0       0.040      Human
+blablabla                5             NaN       NaN         NaN   Low data
 ```
 
 ```
 $ bodegit --repositories ./path/to/repo1 --start-date 01-01-2017  --verbose --min-commits 20 --max-commits 90 --json
 
-
+[{"author":"Travis CI[bot]","messages":20,"empty messages":0.0,"patterns":1.0,"dispersion":0.026,"prediction":"Bot"},{"author":"blablabla","messages":69,"empty messages":0.0,"patterns":58.0,"dispersion":0.04,"prediction":"Human"},{"author":"greenkeeper[bot]","messages":10,"empty messages":null,"patterns":null,"dispersion":null,"prediction":"Low data"},{"author":"blablabla","messages":5,"empty messages":null,"patterns":null,"dispersion":null,"prediction":"Low data"}]
 ```
 
 ```
-$ bodegit --repositories ./path/to/repo1 --verbose --max-commits 80 --csv --authors "author1 ln" 
+$ bodegit --repositories ./path/to/repo1 --verbose --max-commits 80 --csv
 
-
+author,messages,empty messages,patterns,dispersion,prediction
+Travis CI[bot],20,0.0,1.0,0.026,Bot
+greenkeeper[bot],10,0.0,3.0,0.141,Bot
+blablabla,69,0.0,58.0,0.04,Human
+blablabla,5,,,,Low data
 ```
