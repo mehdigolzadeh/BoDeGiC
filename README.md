@@ -10,7 +10,7 @@ The third step simply applies the model we developed on these examples and outpu
 
 More details about the classification model can be found in a companion research article that is currently under peer review.
 
-**Important note!** When running the tool on a GitHub repository of your choice, it is possible, though unfrequent, for some human authors or bot authors to be misclassified by the classification model. If you would encounter such situations while running the tool, please inform us about it, so that we can strive to further improve the accurracy of the classification algorithm.
+**Important note!** When running the tool on a Git repository of your choice, it is possible, for some human authors or bot authors to be misclassified by the classification model. If you would encounter such situations while running the tool, please inform us about it, so that we can strive to further improve the accurracy of the classification algorithm.
 
 
 ## Installation
@@ -44,47 +44,47 @@ deactivate
 Here is the list of parameters:
 
 `--repositories [REPOSITORY [REPOSITORY ...]]` 	**A list of repositories' path**
-> Example: $ bodegit --repositories ./path/to/repo1 ./path/to/repo2
+> Example: $ bodegit ./path/to/repo1 ./path/to/repo2
 
 _At least one repository is required_
 
 `--include [NAME [Name ...]]` 	**A list of name of authors**
-> Example: $ bodegit --repositories ./path/to/repo1 --authors "jim golzadeh" "donald s" "m mens"
+> Example: $ bodegit ./path/to/repo1 --authors "jim golzadeh" "donald s" "m mens"
 
 _By default all authors in the repository will be analysed_
 
 `--committer` 	**To analyse committers instead of authors**
-> Example: $ bodegit --repositories ./path/to/repo1 --committer
+> Example: $ bodegit ./path/to/repo1 --committer
   
-`--mapping [--mapping [MAPPING]]` 	**Mapping file to merge identities. This file must be a csv file where each line contains two values: the name to be merged, and the corresponding identity.**
-> Example: $ bodegit --repositories ./path/to/repo1 --mapping ./mapping.csv
+`--mapping [MAPPING]` 	**Mapping file to merge identities. This file must be a csv file where each line contains two values: the name to be merged, and the corresponding identity.**
+> Example: $ bodegit ./path/to/repo1 --mapping ./mapping.csv
 
 _Use "IGNORE" as identity to ignore specific names._
 
 `--start-date START_DATE` 		**Start date of commit in the repository to be considered**
-> Example: $ bodegit --repositories ./path/to/repo1 --start-date 01-01-2018
+> Example: $ bodegit ./path/to/repo1 --start-date 01-01-2018
   
 _The default start-date is 6 months before the current date._
 
 `--verbose` **To have verbose output result**
-> Example: $ bodegit --repositories ./path/to/repo1 --verbose
+> Example: $ bodegit ./path/to/repo1 --verbose
  
 _The default value is false, if you don't pass this parameter the output will only be the accounts and their type_
   
 `--min-commits MIN_COMMITS` 		**Minimum number of commit messages that are required to analyze an account**
-> Example: $ bodegit --repositories ./path/to/repo1 --min-commits 20
+> Example: $ bodegit ./path/to/repo1 --min-commits 20
  
 _The default value is 10 comments_
 
 `--max-commits MAX_COMMITS` 		**Maximum number of commit messages to be considered for each account (default=100)**
-> Example: $ bodegit --repositories ./path/to/repo1 --max-commits 120
+> Example: $ bodegit ./path/to/repo1 --max-commits 120
 
 _The default value is 100 comments_
 
 `--text`                	Output results as plain text
 `--csv`                		Output results in comma-separated values (csv) format
 `--json`                	Output results in json format
-> Example: $ bodegit --repositories ./path/to/repo1 --json
+> Example: $ bodegit ./path/to/repo1 --json
 
 _This group of parameters is the type of output, e.g., if you pass --json you will get the result in JSON format_
 
@@ -92,7 +92,7 @@ _This group of parameters is the type of output, e.g., if you pass --json you wi
 
 ## Examples of bodegit output (for illustration purposes only)
 ```
-$ bodegit --repositories ./path/to/repo1  --verbose --committer
+$ bodegit ./path/to/repo1  --verbose --committer
                   messages  empty messages  patterns  dispersion prediction
 committer
 Travis CI[bot]          20             0.0       1.0       0.026        Bot
@@ -102,13 +102,13 @@ blablabla                5             NaN       NaN         NaN   Low data
 ```
 
 ```
-$ bodegit --repositories ./path/to/repo1 --start-date 01-01-2017  --verbose --min-commits 20 --max-commits 90 --json
+$ bodegit ./path/to/repo1 --start-date 01-01-2017  --verbose --min-commits 20 --max-commits 90 --json
 
 [{"author":"Travis CI[bot]","messages":20,"empty messages":0.0,"patterns":1.0,"dispersion":0.026,"prediction":"Bot"},{"author":"blablabla","messages":69,"empty messages":0.0,"patterns":58.0,"dispersion":0.04,"prediction":"Human"},{"author":"greenkeeper[bot]","messages":10,"empty messages":null,"patterns":null,"dispersion":null,"prediction":"Low data"},{"author":"blablabla","messages":5,"empty messages":null,"patterns":null,"dispersion":null,"prediction":"Low data"}]
 ```
 
 ```
-$ bodegit --repositories ./path/to/repo1 --verbose --max-commits 80 --csv
+$ bodegit ./path/to/repo1 --verbose --max-commits 80 --csv
 
 author,messages,empty messages,patterns,dispersion,prediction
 Travis CI[bot],20,0.0,1.0,0.026,Bot

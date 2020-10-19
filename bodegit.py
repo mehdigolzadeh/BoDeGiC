@@ -312,9 +312,9 @@ predict the type of identities. At least 10 commits is required for each identit
 # --- cli ---
 def arg_parser():
     parser = argparse.ArgumentParser(description='BoDeGit - Bot detection in Git commit messages')
-    parser.add_argument('--repositories', metavar='REPOSITORY',
+    parser.add_argument('repositories', metavar='REPOSITORY',
         help='list of a repositories on GitHub in the form of ("owner/repo")',
-        default=list(), type=str, nargs='+')
+        default=['.'], type=str, nargs='*')
     parser.add_argument(
         '--include', metavar='NAME', required=False, default=list(), type=str, nargs='*',
         help='List of authors. Example: \
