@@ -196,7 +196,7 @@ def run_function_in_thread(pbar, function, max_value, args=[], kwargs={}):
     return ret[0]
 
 
-def progress(repositories, include, mapping, committer, date, verbose, min_commits, max_commits, output_type):
+def progress(repositories, include, mapping, committer, date, verbose, only_predicted, min_commits, max_commits, output_type):
     download_progress = tqdm(
         total=25, desc='Extracting commits', smoothing=.1,
         bar_format='{desc}: {percentage:3.0f}%|{bar}', leave=False)
@@ -269,37 +269,40 @@ predict the type of identities. At least 10 commits is required for each identit
     result = run_function_in_thread(
         prediction_progress, predict, 25, args=(model, df_clusters))
     
-    result = result.sort_values(['prediction', identity_type])
+    result = result.sort_values(['prediction', identity_type]).assign(patterns= lambda x: x['patterns'].astype('Int64'))
     prediction_progress.close()
 
-    result = result.append(  
-        (
-            comments[lambda x: ~x['author'].isin(result[identity_type])][['author','body']]
-            .groupby('author', as_index=False)
-            .count()
-            .assign(
-                empty=np.nan,
-                patterns=np.nan,
-                dispersion=np.nan,
-                prediction="Low data",
-            )
-            .rename(columns={'author':identity_type,'body':'messages','empty':'empty messages'})
-        ),ignore_index=True,sort=True)
-    
-    for identity in (set(include) - set(result[identity_type])):
-        result = result.append({
-            identity_type: identity,
-            'messages':np.nan,
-            'empty messages':np.nan,
-            'patterns':np.nan,
-            'dispersion':np.nan,
-            'prediction':"Not found",
-        },ignore_index=True,sort=True)
+    if only_predicted == True:
+        result = result.append(  
+            (
+                comments[lambda x: ~x['author'].isin(result[identity_type])][['author','body']]
+                .groupby('author', as_index=False)
+                .count()
+                .assign(
+                    patterns=np.nan,
+                    dispersion=np.nan,
+                    prediction="Unknown",
+                )
+                .rename(columns={'author':identity_type,'body':'messages'})
+            ),ignore_index=True,sort=True)
+        
+        for identity in (set(include) - set(result[identity_type])):
+            result = result.append({
+                identity_type: identity,
+                'messages':np.nan,
+                'patterns':np.nan,
+                'dispersion':np.nan,
+                'prediction':"Not found",
+            },ignore_index=True,sort=True)
     
     if verbose is False:
         result = result.set_index(identity_type)[['prediction']]
     else:
-        result = result.set_index(identity_type)[['messages', 'empty messages', 'patterns', 'dispersion','prediction']]
+        result = (
+            result
+            .set_index(identity_type)
+            [['messages', 'patterns', 'dispersion','prediction']]
+        )
 
     if output_type == 'json':
         return (result.reset_index().to_json(orient='records'))
@@ -341,6 +344,10 @@ Use "IGNORE" as identity to ignore specific names.')
     parser.add_argument(
         '--max-commits', type=int, required=False, default=100,
         help='Maximum number of commits to be used (default=100)')
+    
+    parser.add_argument(
+        '--only-predicted', action="store_false", required=False, default=True,
+        help='Only list accounts that the prediction is available.')
 
     group2 = parser.add_mutually_exclusive_group()
     group2.add_argument('--text', action='store_true', help='Print results as text.')
@@ -391,6 +398,7 @@ def cli():
                     args.committer,
                     date,
                     args.verbose,
+                    args.only_predicted,
                     min_commits,
                     max_commits,
                     output_type

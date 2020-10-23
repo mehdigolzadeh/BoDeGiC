@@ -70,6 +70,11 @@ _The default start-date is 6 months before the current date._
 > Example: $ bodegit ./path/to/repo1 --verbose
  
 _The default value is false, if you don't pass this parameter the output will only be the accounts and their type_
+
+`--only-predicted` **Only list accounts that the prediction is available**
+> Example: $ bodegit ./path/to/repo1 --only-predicted
+ 
+_The default value is true, if this parameter is not passed, the output would include all accounts resulting in "unknown" for accounts that were unable to make a prediction_
   
 `--min-commits MIN_COMMITS` 		**Minimum number of commit messages that are required to analyze an account**
 > Example: $ bodegit ./path/to/repo1 --min-commits 20
@@ -93,26 +98,26 @@ _This group of parameters is the type of output, e.g., if you pass --json you wi
 ## Examples of bodegit output (for illustration purposes only)
 ```
 $ bodegit ./path/to/repo1  --verbose --committer
-                  messages  empty messages  patterns  dispersion prediction
+                  messages  patterns  dispersion prediction
 committer
-Travis CI[bot]          20             0.0       1.0       0.026        Bot
-greenkeeper[bot]        10             0.0       3.0       0.141        Bot
-blablabla               69             0.0      58.0       0.040      Human
-blablabla                5             NaN       NaN         NaN   Low data
+Travis CI[bot]          20         1       0.026        Bot
+greenkeeper[bot]        10         3       0.141        Bot
+blablabla               69        58       0.040      Human
+blablabla                5       NaN         NaN    Unknown
 ```
 
 ```
 $ bodegit ./path/to/repo1 --start-date 01-01-2017  --verbose --min-commits 20 --max-commits 90 --json
 
-[{"author":"Travis CI[bot]","messages":20,"empty messages":0.0,"patterns":1.0,"dispersion":0.026,"prediction":"Bot"},{"author":"blablabla","messages":69,"empty messages":0.0,"patterns":58.0,"dispersion":0.04,"prediction":"Human"},{"author":"greenkeeper[bot]","messages":10,"empty messages":null,"patterns":null,"dispersion":null,"prediction":"Low data"},{"author":"blablabla","messages":5,"empty messages":null,"patterns":null,"dispersion":null,"prediction":"Low data"}]
+[{"author":"Travis CI[bot]","messages":20,"patterns":1,"dispersion":0.026,"prediction":"Bot"},{"author":"blablabla","messages":69,"patterns":58,"dispersion":0.04,"prediction":"Human"},{"author":"greenkeeper[bot]","messages":10,"patterns":null,"dispersion":null,"prediction":"Unknown"},{"author":"blablabla","messages":5,"patterns":null,"dispersion":null,"prediction":"Unknown"}]
 ```
 
 ```
 $ bodegit ./path/to/repo1 --verbose --max-commits 80 --csv
 
-author,messages,empty messages,patterns,dispersion,prediction
-Travis CI[bot],20,0.0,1.0,0.026,Bot
-greenkeeper[bot],10,0.0,3.0,0.141,Bot
-blablabla,69,0.0,58.0,0.04,Human
-blablabla,5,,,,Low data
+author,messages,patterns,dispersion,prediction
+Travis CI[bot],20,1,0.026,Bot
+greenkeeper[bot],10,3,0.141,Bot
+blablabla,69,58,0.04,Human
+blablabla,5,,,Unknown
 ```
