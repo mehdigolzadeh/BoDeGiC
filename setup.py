@@ -3,13 +3,13 @@ from setuptools import setup
 from codecs import open # To use a consistent encoding
 
 
-__package__ = 'bodegit'
-__version__ = '0.1.0'
+__package__ = 'bedegic'
+__version__ = '0.2.0'
 __licence__ = 'LGPL3'
 __maintainer__ = 'Mehdi Golzadeh'
 __email__ = 'golzadeh.mehdi@gmail.com'
-__url__ = 'https://github.com/mehdigolzadeh/BoDeGit'
-__description__ = 'BoDeGit - Bot detector an automated tool to identify bots in Git repositories by analysing commit messages'
+__url__ = 'https://github.com/mehdigolzadeh/BoDeGiC'
+__description__ = 'BoDeGiC - Bot detector an automated tool to identify bots in Git repositories by analysing commit messages'
 __long_description__ = 'This tool accepts the name of a list of Git repositories and computes its output in three steps.\\\
 The first step consists of extracting all commit information from the specified Git repositories using git log. This step results in a list of authors and their corresponding commits.\\\
 The second step consists of computing the number of messages, empty messages, message patterns, and inequality between the number of messages within patterns.\\\
@@ -64,10 +64,10 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'bodegit=bodegit:cli',
+            'bedegic=bedegic:cli',
         ]
     },
 
-    py_modules=['bodegit'],
+    py_modules=['bedegic'],
     zip_safe=True,
 )

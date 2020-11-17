@@ -1,4 +1,4 @@
-#  Module bodegit.py
+#  Module bodegic.py
 #
 #  Copyright (c) 2020 Mehdi Golzadeh <golzadeh.mehdi@gmail.com>.
 #
@@ -38,7 +38,7 @@ from tqdm import tqdm
 
 
 # --- Exception ---
-class BodegitError(ValueError):
+class BodegicError(ValueError):
     pass
 
 
@@ -72,7 +72,7 @@ def process_comments(repositories, mapping ,committer, date, min_commits, max_co
                         'type': 'gitmsg',
                     }, ignore_index=True,sort=True)
         
-    comments = comments.assign(empty = lambda x: np.where(x['body'].str.len()<5,1,0))
+    comments = comments.assign(empty = 0)
 
     return comments
 
@@ -206,10 +206,10 @@ def progress(repositories, include, mapping, committer, date, verbose, only_pred
     download_progress.close()
 
     if comments is None:
-        raise BodegitError('Commit information extraction failed.')
+        raise BodegicError('Commit information extraction failed.')
 
     if len(comments) < 1:
-        raise BodegitError('Available commits are not enough to predict the type of identities')
+        raise BodegicError('Available commits are not enough to predict the type of identities')
 
     df = (
         comments
@@ -226,7 +226,7 @@ def progress(repositories, include, mapping, committer, date, verbose, only_pred
         df = df[lambda x: x['author'].isin(include)]
 
     if(len(df) < 1):
-        raise BodegitError('There are not enough commits in the selected time period to\
+        raise BodegicError('There are not enough commits in the selected time period to\
 predict the type of identities. At least 10 commits is required for each identity.')
 
     inputs = []
@@ -263,7 +263,7 @@ predict the type of identities. At least 10 commits is required for each identit
     prediction_progress.set_description(tasks[0])
     model = run_function_in_thread(prediction_progress, get_model, 5)
     if model is None:
-        raise BodegitError('Could not load the model file')
+        raise BodegicError('Could not load the model file')
 
     prediction_progress.set_description(tasks[1])
     result = run_function_in_thread(
@@ -314,7 +314,7 @@ predict the type of identities. At least 10 commits is required for each identit
 
 # --- cli ---
 def arg_parser():
-    parser = argparse.ArgumentParser(description='BoDeGit - Bot detection in Git commit messages')
+    parser = argparse.ArgumentParser(description='BoDeGiC - Bot detection in Git commit messages')
     parser.add_argument('repositories', metavar='REPOSITORY',
         help='list of a repositories on GitHub in the form of ("owner/repo")',
         default=['.'], type=str, nargs='*')
@@ -403,7 +403,7 @@ def cli():
                     max_commits,
                     output_type
                 ))
-    except BodegitError as e:
+    except BodegicError as e:
         sys.exit(e)
 
 
