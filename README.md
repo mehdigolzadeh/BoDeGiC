@@ -102,14 +102,17 @@ $ bodegic ./path/to/repo1  --verbose --committer
 committer
 Travis CI[bot]          20         1       0.026        Bot
 greenkeeper[bot]        10         3       0.141        Bot
-blablabla               69        58       0.040      Human
-blablabla                5       NaN         NaN    Unknown
+Jane Doe                69        58       0.040      Human
+John Smith               5       NaN         NaN    Unknown
 ```
 
 ```
 $ bodegic ./path/to/repo1 --start-date 01-01-2017  --verbose --min-commits 20 --max-commits 90 --json
 
-[{"author":"Travis CI[bot]","messages":20,"patterns":1,"dispersion":0.026,"prediction":"Bot"},{"author":"blablabla","messages":69,"patterns":58,"dispersion":0.04,"prediction":"Human"},{"author":"greenkeeper[bot]","messages":10,"patterns":null,"dispersion":null,"prediction":"Unknown"},{"author":"blablabla","messages":5,"patterns":null,"dispersion":null,"prediction":"Unknown"}]
+[{"author":"Travis CI[bot]","messages":20,"patterns":1,"dispersion":0.026,"prediction":"Bot"},
+ {"author":"Jane Doe","messages":69,"patterns":58,"dispersion":0.04,"prediction":"Human"},
+ {"author":"greenkeeper[bot]","messages":10,"patterns":null,"dispersion":null,"prediction":"Unknown"},
+ {"author":"John Smith","messages":5,"patterns":null,"dispersion":null,"prediction":"Unknown"}]
 ```
 
 ```
@@ -118,6 +121,6 @@ $ bodegic ./path/to/repo1 --verbose --max-commits 80 --csv
 author,messages,patterns,dispersion,prediction
 Travis CI[bot],20,1,0.026,Bot
 greenkeeper[bot],10,3,0.141,Bot
-blablabla,69,58,0.04,Human
-blablabla,5,,,Unknown
+Jane Doe,69,58,0.04,Human
+John Smith,5,,,Unknown
 ```
