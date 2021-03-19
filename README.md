@@ -1,16 +1,15 @@
 # BoDeGiC
 An automated tool to identify bots in Git repositories by analysing commit information.
-The tool has been developed by Mehdi Golzadeh, researcher at the Software Engineering Lab of the University of Mons (Belgium) as part of his PhD research.
+The tool has been developed by Mehdi Golzadeh, researcher at the Software Engineering Lab of the University of Mons (Belgium) as part of his PhD research in the context of the [SECO-ASSIST](https://secoassist.github.io) Excellence of Science Project.
 
-This tool accepts the name of a list of Git repositories and computes its output in three steps.
-The first step consists of extracting all commit information from the specified Git repositories using git log. This step results in a list of authors and their corresponding commits.
+BoDeGiC accepts the name of a list of git repositories and computes its output in three steps.
+The first step consists of extracting all commit information from the specified git repositories using git log. This step results in a list of authors and their corresponding commits.
 The second step consists of computing the number of messages, empty messages, message patterns, and inequality between the number of messages within patterns.
-The third step simply applies the model we developed on these examples and outputs the prediction made by the model
-
+The third step simply applies the model we developed on these examples and outputs the prediction made by the model.
 
 More details about the classification model can be found in a companion research article that is currently under peer review.
 
-**Important note!** When running the tool on a Git repository of your choice, it is possible, for some human authors or bot authors to be misclassified by the classification model. If you would encounter such situations while running the tool, please inform us about it, so that we can strive to further improve the accurracy of the classification algorithm.
+**Important note!** When running the tool on a git repository of your choice, it is possible, for some human authors or bot authors to be misclassified by the classification model. If you would encounter such situations while running the tool, please inform us about it, so that we can strive to further improve the accurracy of the classification algorithm.
 
 
 ## Installation
@@ -43,35 +42,35 @@ deactivate
 
 Here is the list of parameters:
 
-`--repositories [REPOSITORY [REPOSITORY ...]]` 	**A list of repositories' path**
+`--repositories [REPOSITORY [REPOSITORY ...]]` 	**A list of repository paths**
 > Example: $ bodegic ./path/to/repo1 ./path/to/repo2
 
 _At least one repository is required_
 
-`--include [NAME [Name ...]]` 	**A list of name of authors**
-> Example: $ bodegic ./path/to/repo1 --authors "jim golzadeh" "donald s" "m mens"
+`--include [NAME [Name ...]]` 	**A list of author names**
+> Example: $ bodegic ./path/to/repo1 --authors "Jane Doe" "John Smith" 
 
 _By default all authors in the repository will be analysed_
 
-`--committer` 	**To analyse committers instead of authors**
+`--committer` 	**To analyse git committers instead of git authors**
 > Example: $ bodegic ./path/to/repo1 --committer
   
-`--mapping [MAPPING]` 	**Mapping file to merge identities. This file must be a csv file where each line contains two values: the name to be merged, and the corresponding identity.**
+`--mapping [MAPPING]` 	**Mapping file to merge identities. This file must be a CSV file where each line contains two values: the name to be merged, and the corresponding identity.**
 > Example: $ bodegic ./path/to/repo1 --mapping ./mapping.csv
 
 _Use "IGNORE" as identity to ignore specific names._
 
-`--start-date START_DATE` 		**Start date of commit in the repository to be considered**
+`--start-date START_DATE` 		**Earliest start date of commits in the repository to be considered for analysis**
 > Example: $ bodegic ./path/to/repo1 --start-date 01-01-2018
   
 _The default start-date is 6 months before the current date._
 
-`--verbose` **To have verbose output result**
+`--verbose` **To provide a more verbose output result**
 > Example: $ bodegic ./path/to/repo1 --verbose
  
 _The default value is false, if you don't pass this parameter the output will only be the accounts and their type_
 
-`--only-predicted` **Only list accounts that the prediction is available**
+`--only-predicted` **Only report accounts for which the prediction is available**
 > Example: $ bodegic ./path/to/repo1 --only-predicted
  
 _The default value is true, if this parameter is not passed, the output would include all accounts resulting in "unknown" for accounts that were unable to make a prediction_
