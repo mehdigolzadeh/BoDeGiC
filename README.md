@@ -7,7 +7,7 @@ The first step consists of extracting all commit information from the specified 
 The second step consists of computing the number of messages, empty messages, message patterns, and inequality between the number of messages within patterns.
 The third step simply applies the model we developed on these examples and outputs the prediction made by the model.
 
-More details about the classification model can be found in a companion research article that is currently under peer review.
+More details about the classification model can be found in a companion research article [Evaluating a bot detection model on git commit messages](https://arxiv.org/abs/2103.11779) that has been presented at the [BENEVOL 2020](https://benevol2020.github.io) Software Evolution workshop and will be published in the [CEUR Workshop Proceedings](http://ceur-ws.org).
 
 **Important note!** When running the tool on a git repository of your choice, it is possible, for some human authors or bot authors to be misclassified by the classification model. If you would encounter such situations while running the tool, please inform us about it, so that we can strive to further improve the accurracy of the classification algorithm.
 
