@@ -123,3 +123,7 @@ greenkeeper[bot],10,3,0.141,Bot
 Jane Doe,69,58,0.04,Human
 John Smith,5,,,Unknown
 ```
+
+
+## Contributors
+![alt text](https://github.com/mehdigolzadeh/BoDeGiC/blob/master/CONTRIBUTORS.svg?raw=true)
