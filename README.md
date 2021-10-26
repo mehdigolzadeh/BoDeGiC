@@ -126,4 +126,4 @@ John Smith,5,,,Unknown
 
 
 ## Contributors
-![alt text](https://github.com/mehdigolzadeh/BoDeGiC/blob/master/CONTRIBUTORS.svg?raw=true)
+![Contributors](https://github.com/mehdigolzadeh/BoDeGiC/blob/master/CONTRIBUTORS.svg?raw=true)
