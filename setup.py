@@ -29,7 +29,7 @@ __classifiers__=[
 __requirement__ = [
         'python-dateutil >= 2.7.5',
         'pandas >= 0.23.4',
-        'scikit-learn == 0.22',
+        'scikit-learn >= 0.22',
         'argparse >= 1.1',
         'GitPython >= 3.1.8',
         'tqdm >= 4.41.1',
