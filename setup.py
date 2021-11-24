@@ -3,7 +3,7 @@ from setuptools import setup
 from codecs import open # To use a consistent encoding
 
 
-__package__ = 'bedegic'
+__package__ = 'bodegic'
 __version__ = '0.2.0'
 __licence__ = 'LGPL3'
 __maintainer__ = 'Mehdi Golzadeh'
@@ -64,10 +64,10 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'bedegic=bedegic:cli',
+            'bodegic=bodegic:cli',
         ]
     },
 
-    py_modules=['bedegic'],
+    py_modules=['bodegic'],
     zip_safe=True,
 )
