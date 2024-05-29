@@ -1,3 +1,5 @@
+[![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/mehdigolzadeh/BoDeGiC/)](https://archive.softwareheritage.org/browse/origin/?origin_url=https://github.com/mehdigolzadeh/BoDeGiC)
+
 # BoDeGiC
 An automated tool to identify bots in Git repositories by analysing commit information.
 The tool has been developed by Mehdi Golzadeh, researcher at the Software Engineering Lab of the University of Mons (Belgium) as part of his PhD research in the context of the [SECO-ASSIST](https://secoassist.github.io) Excellence of Science Project.
